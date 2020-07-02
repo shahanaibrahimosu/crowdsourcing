@@ -1,0 +1,31 @@
+function [F,f,y,K,M,N] = LoadDataset_RTE()
+
+fid = fopen('/nfs/stak/users/ibrahish/Semester 1/Research/Code/CrowdSourcingAMT/Datasets/bluebird.txt');
+A = textscan(fid,'%f%f%f','delimiter','\t');
+
+fid = fopen('/nfs/stak/users/ibrahish/Semester 1/Research/Code/CrowdSourcingAMT/Datasets/bluebird_truth.txt');
+B = textscan(fid,'%f%f','delimiter','\t');
+
+item_id = A{1};
+annotator_id=A{2};
+annotator_res=A{3};
+ground_truth = B{2};
+
+M = max(annotator_id);
+N = max(item_id);
+K = max(ground_truth);
+f = zeros(M,N); %annotator labels
+
+y = ground_truth;
+for i=1:M   
+    for k=1:N
+         f(i,k)= annotator_res(item_id==k & annotator_id==i);
+    end
+end
+F = cell(M,1); %cell of annotator responses. 
+for i=1:M 
+    indx = find(f(i,:) > 0);
+    F{i} = sparse(f(i,indx),indx,1,K,N);
+end
+
+end
